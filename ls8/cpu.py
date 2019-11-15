@@ -139,6 +139,30 @@ class CPU:
             self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
         elif op == "OR":
             self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
+        elif op == "XOR":
+            # Bitwise-AND the value in reg a, b and store the result in reg_a
+            self.reg[reg_a] = self.reg[reg_a] ^ self.reg[reg_b]
+        elif op == "NOT":
+            # Perform a bitwise-NOT on the value in a register
+            self.reg[reg_a] = ~self.reg[reg_a]
+        elif op == "SHL":
+            # Shift the value in reg_a left by the number of bits specified in reg_b,
+            # filling the low bits with 0
+            self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
+        elif op == "SHR":
+            # Shift the value in reg_a right by the number of bits specified in reg_b,
+            # filling the high bits with 0
+            self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
+        elif op == "MOD":
+            # If the value in the second register is 0,
+            if self.reg[reg_b] == 0:
+                # the system should print a message and halt
+                self.handle_HLT(None, None) # unused argument
+                raise Exception(f"Can not perform operation at {self.IR:08b}")
+            else:
+                # Divide the value in reg a, b and store the result in reg_a
+                value = self.reg[reg_a] % self.reg[reg_b]
+                self.reg[reg_a] = value
         else:
             raise Exception("Unsupported ALU operation")
 
