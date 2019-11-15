@@ -15,6 +15,8 @@ CMP = 0b10100111
 JMP = 0b01010100
 JEQ = 0b01010101
 JNE = 0b01010110
+AND = 0b10101000
+OR = 0b10101010
 class CPU:
     """Main CPU class."""
 
@@ -41,6 +43,8 @@ class CPU:
         self.branchtable[JEQ] = self.handle_JEQ
         self.branchtable[JNE] = self.handle_JNE
         self.branchtable[JMP] = self.handle_JMP
+        self.branchtable[AND] = self.handle_AND
+        self.branchtable[OR] = self.handle_OR
         self.flag = 0b000 #00000LGE
 
     def ram_read(self, address):
@@ -105,6 +109,7 @@ class CPU:
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
+        """Add the ALU operations: AND OR XOR NOT SHL SHR MOD"""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
@@ -120,6 +125,10 @@ class CPU:
                 self.flag = 0b100
             else:
                 self.flag = 0b000
+        elif op == "AND":
+            self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
+        elif op == "OR":
+            self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -170,31 +179,19 @@ class CPU:
     def handle_LDI(self, op_id1, op_id2):
         self.reg[op_id1] = op_id2
         self.op_pc = False
-        # self.pc += 3
-        # if not self.op_pc:
-        #     self.pc += 3 # move to next MAR
 
     def handle_PRN(self, op_id1, op_id2):
         print(self.reg[op_id1])
         self.op_pc = False
-        # self.pc += 2
-        # if not self.op_pc:
-        #     self.pc += 2
 
     def handle_MUL(self, op_id1, op_id2):
         self.alu("MUL",op_id1, op_id2)
         self.op_pc = False
-        # self.pc += 3
-        # if not self.op_pc:
-        #     self.pc += 3 # move to next MAR
     
     def handle_ADD(self, op_id1, op_id2):
         self.alu("ADD",op_id1, op_id2)
         self.op_pc = False
-        # self.pc += 3
-        # if not self.op_pc:
-        #     self.pc += 3 # move to next MAR
-    
+        
     def handle_PUSH(self, op_id1, op_id2):
         # EXECUTE
         # SETUP
@@ -202,9 +199,6 @@ class CPU:
         self.reg[self.sp] -= 1
         self.ram[self.reg[self.sp]] = self.reg[op_id1]
         self.op_pc = False
-        # self.pc += 2
-        # if not self.op_pc:
-        #     self.pc += 2
 
     def handle_POP(self, op_id1, op_id2):
         # EXECUTE
@@ -213,9 +207,6 @@ class CPU:
         self.reg[op_id1] = self.ram_read(self.reg[self.sp])
         self.reg[self.sp] += 1
         self.op_pc = False
-        # self.pc += 2
-        # if not self.op_pc:
-        #     self.pc += 2
 
     def handle_HLT(self, op_id1, op_id2):
         sys.exit()
@@ -250,8 +241,7 @@ class CPU:
             self.op_pc = True
         else:
             self.op_pc = False
-        # if not self.op_pc:
-            # self.pc += 2
+        
             
 
     def handle_JNE(self, op_id1, op_id2):
@@ -260,15 +250,18 @@ class CPU:
             self.op_pc = True
         else:
             self.op_pc = False
-        # if not self.op_pc:
-            # self.pc += 2
+        
 
     
     def handle_JMP(self, op_id1, op_id2):
         self.pc = self.reg[op_id1]
         self.op_pc = True
-        # if not self.op_pc:
-        #     self.pc += 2
+        
+    def handle_AND(self, op_id1, op_id2):
+        pass
+
+    def handle_OR(self, op_id1, op_id2):
+        pass
 
 
 """
