@@ -93,7 +93,7 @@ class CPU:
                     self.ram_write(address, value)
                     address += 1
                 # print the value in binary and in decimal
-                    print(f"{value:08b}: {value:d}")
+                    # print(f"{value:08b}: {value:d}")
 
             # for instruction in program:
             #     self.ram_write(address, instruction)
@@ -155,36 +155,45 @@ class CPU:
             IR = self.ram_read(self.pc)
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
-            if IR in self.branchtable:
+            try:
                 self.branchtable[IR](operand_a, operand_b)
-            else:
+            except KeyError:
                 print(f"Unknown Instruction")
                 sys.exit(1)
+
+            instruction_size = ((IR >> 6) & 0b11) + 1
+
+            if not self.op_pc:
+                self.pc += instruction_size
 
     
     def handle_LDI(self, op_id1, op_id2):
         self.reg[op_id1] = op_id2
         self.op_pc = False
-        if not self.op_pc:
-            self.pc += 3 # move to next MAR
+        # self.pc += 3
+        # if not self.op_pc:
+        #     self.pc += 3 # move to next MAR
 
     def handle_PRN(self, op_id1, op_id2):
         print(self.reg[op_id1])
         self.op_pc = False
-        if not self.op_pc:
-            self.pc += 2
+        # self.pc += 2
+        # if not self.op_pc:
+        #     self.pc += 2
 
     def handle_MUL(self, op_id1, op_id2):
         self.alu("MUL",op_id1, op_id2)
         self.op_pc = False
-        if not self.op_pc:
-            self.pc += 3 # move to next MAR
+        # self.pc += 3
+        # if not self.op_pc:
+        #     self.pc += 3 # move to next MAR
     
     def handle_ADD(self, op_id1, op_id2):
         self.alu("ADD",op_id1, op_id2)
         self.op_pc = False
-        if not self.op_pc:
-            self.pc += 3 # move to next MAR
+        # self.pc += 3
+        # if not self.op_pc:
+        #     self.pc += 3 # move to next MAR
     
     def handle_PUSH(self, op_id1, op_id2):
         # EXECUTE
@@ -193,8 +202,9 @@ class CPU:
         self.reg[self.sp] -= 1
         self.ram[self.reg[self.sp]] = self.reg[op_id1]
         self.op_pc = False
-        if not self.op_pc:
-            self.pc += 2
+        # self.pc += 2
+        # if not self.op_pc:
+        #     self.pc += 2
 
     def handle_POP(self, op_id1, op_id2):
         # EXECUTE
@@ -203,8 +213,9 @@ class CPU:
         self.reg[op_id1] = self.ram_read(self.reg[self.sp])
         self.reg[self.sp] += 1
         self.op_pc = False
-        if not self.op_pc:
-            self.pc += 2
+        # self.pc += 2
+        # if not self.op_pc:
+        #     self.pc += 2
 
     def handle_HLT(self, op_id1, op_id2):
         sys.exit()
@@ -239,8 +250,8 @@ class CPU:
             self.op_pc = True
         else:
             self.op_pc = False
-        if not self.op_pc:
-            self.pc += 2
+        # if not self.op_pc:
+            # self.pc += 2
             
 
     def handle_JNE(self, op_id1, op_id2):
@@ -249,15 +260,15 @@ class CPU:
             self.op_pc = True
         else:
             self.op_pc = False
-        if not self.op_pc:
-            self.pc += 2
+        # if not self.op_pc:
+            # self.pc += 2
 
     
     def handle_JMP(self, op_id1, op_id2):
         self.pc = self.reg[op_id1]
         self.op_pc = True
-        if not self.op_pc:
-            self.pc += 2
+        # if not self.op_pc:
+        #     self.pc += 2
 
 
 """
