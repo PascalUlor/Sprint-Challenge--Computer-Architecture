@@ -11,6 +11,10 @@ POP = 0b01000110 # POP R2
 CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000 # ADD R0,R0
+CMP = 0b10100111
+JMP = 0b01010100
+JEQ = 0b01010101
+JNE = 0b01010110
 class CPU:
     """Main CPU class."""
 
@@ -33,6 +37,11 @@ class CPU:
         self.branchtable[CALL] = self.handle_CALL
         self.branchtable[RET] = self.handle_RET
         self.branchtable[ADD] = self.handle_ADD
+        self.branchtable[CMP] = self.handle_CMP
+        self.branchtable[JEQ] = self.handle_JEQ
+        self.branchtable[JNE] = self.handle_JNE
+        self.branchtable[JMP] = self.handle_JMP
+        self.flag = 0b000 #00000LGE
 
     def ram_read(self, address):
         return self.ram[address]
@@ -102,6 +111,15 @@ class CPU:
         #elif op == "SUB": etc
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "CMP":
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.flag = 0b001
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.flag = 0b010
+            elif self.reg[reg_a] < self.reg[reg_b]:
+                self.flag = 0b100
+            else:
+                self.flag = 0b000
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -210,3 +228,56 @@ class CPU:
         self.pc = self.ram_read(self.reg[self.sp])
         self.reg[self.sp] += 1
         self.op_pc = True
+
+    def handle_CMP(self, op_id1, op_id2):
+        self.alu("CMP", op_id1, op_id2)
+        self.op_pc = False
+
+    def handle_JEQ(self, op_id1, op_id2):
+        if self.flag == 0b001:
+            self.pc = self.reg[op_id1]
+            self.op_pc = True
+        else:
+            self.op_pc = False
+        if not self.op_pc:
+            self.pc += 2
+            
+
+    def handle_JNE(self, op_id1, op_id2):
+        if self.flag == 0b100 or self.flag == 0b010:
+            self.pc = self.reg[op_id1]
+            self.op_pc = True
+        else:
+            self.op_pc = False
+        if not self.op_pc:
+            self.pc += 2
+
+    
+    def handle_JMP(self, op_id1, op_id2):
+        self.pc = self.reg[op_id1]
+        self.op_pc = True
+        if not self.op_pc:
+            self.pc += 2
+
+
+"""
+Base10 
+2-280
+140 - 0
+70 - 0
+35 - 0
+17 - 1
+8 - 1
+4 - 0
+2 - 0
+1 - 0
+0 - 1
+1 000 1 1000
+
+100011000 Base9
+
+1011        1001
+8421        8421
+80 21         8 0 0 1
+B9 --- Base16
+"""
