@@ -17,6 +17,11 @@ JEQ = 0b01010101
 JNE = 0b01010110
 AND = 0b10101000
 OR = 0b10101010
+XOR = 0b10101011
+NOT = 0b01101001
+SHL = 0b10101100
+SHR = 0b10101101
+MOD = 0b10100100
 class CPU:
     """Main CPU class."""
 
@@ -45,6 +50,11 @@ class CPU:
         self.branchtable[JMP] = self.handle_JMP
         self.branchtable[AND] = self.handle_AND
         self.branchtable[OR] = self.handle_OR
+        self.branchtable[XOR] = self.handle_XOR
+        self.branchtable[NOT] = self.handle_NOT
+        self.branchtable[SHL] = self.handle_SHL
+        self.branchtable[SHR] = self.handle_SHR
+        self.branchtable[MOD] = self.handle_MOD
         self.flag = 0b000 #00000LGE
 
     def ram_read(self, address):
@@ -242,27 +252,54 @@ class CPU:
         else:
             self.op_pc = False
         
-            
-
     def handle_JNE(self, op_id1, op_id2):
         if self.flag == 0b100 or self.flag == 0b010:
             self.pc = self.reg[op_id1]
             self.op_pc = True
         else:
             self.op_pc = False
-        
-
     
     def handle_JMP(self, op_id1, op_id2):
         self.pc = self.reg[op_id1]
         self.op_pc = True
         
     def handle_AND(self, op_id1, op_id2):
-        pass
+        self.alu("AND",op_id1, op_id2)
+        self.sub_pc = False
 
     def handle_OR(self, op_id1, op_id2):
-        pass
+        self.alu("OR",op_id1, op_id2)
+        self.sub_pc = False
 
+    def handle_XOR(self, op_id1, op_id2):
+        # Invoke the ALU to perform XOR operation passing operands a and b
+        self.alu("XOR", op_id1, op_id2)
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_NOT(self, op_id1, op_id2):
+        # Invoke the ALU to perform NOT operation passing operands a and b
+        self.alu("NOT", op_id1, op_id2)
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_SHL(self, op_id1, op_id2):
+        # Invoke the ALU to perform SHL operation passing operands a and b
+        self.alu("SHL", op_id1, op_id2)
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_SHR(self, op_id1, op_id2):
+        # Invoke the ALU to perform SHR operation passing operands a and b
+        self.alu("SHR", op_id1, op_id2)
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_MOD(self, op_id1, op_id2):
+        # Invoke the ALU to perform MOD operation passing operands a and b
+        self.alu("MOD", op_id1, op_id2)
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
 
 """
 Base10 
